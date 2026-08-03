@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能衣橱与穿搭设计</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleMenu()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+          Smart Wardrobe
+        </span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span id="hkoWeatherText" class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
+          香港 26°C 晴/微风
+        </span>
+        <button onclick="openCollectionModal()" class="text-xs font-medium bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition">
+          <i class="fa-solid fa-[#4f46e5] fa-bookmark mr-1"></i>收藏库
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="drawerOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-slate-900/40 z-50 hidden transition-opacity"></div>
+  <aside id="sideDrawer" class="fixed top-0 left-0 bottom-0 w-72 bg-white z-50 transform -translate-x-full transition-transform duration-200 ease-in-out shadow-2xl flex flex-col">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h2 class="font-semibold text-slate-700">菜单控制</h2>
+      <button onclick="toggleMenu()" class="text-slate-400 hover:text-slate-600 p-1">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+    <div class="p-4 space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-2">画布背景调色盘</label>
+        <div class="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200 mb-3">
+          <input type="color" id="drawerColorPicker" value="#ffffff" oninput="changeCanvasBg(this.value)" class="w-9 h-9 border-0 rounded cursor-pointer bg-transparent p-0" />
+          <span class="text-xs text-slate-600 font-medium">自定义全彩颜色</span>
+        </div>
+        
+        <label class="block text-xs font-semibold text-slate-400 mb-2">快捷预设色</label>
+        <div class="flex gap-2">
+          <button onclick="changeCanvasBg('#ffffff')" class="w-8 h-8 rounded-full border border-slate-300 bg-white shadow-sm"></button>
+          <button onclick="changeCanvasBg('#f8fafc')" class="w-8 h-8 rounded-full border border-slate-300 bg-slate-50 shadow-sm"></button>
+          <button onclick="changeCanvasBg('#f1f5f9')" class="w-8 h-8 rounded-full border border-slate-300 bg-slate-100 shadow-sm"></button>
+          <button onclick="changeCanvasBg('#fef2f2')" class="w-8 h-8 rounded-full border border-slate-300 bg-red-50 shadow-sm"></button>
+          <button onclick="changeCanvasBg('#eff6ff')" class="w-8 h-8 rounded-full border border-slate-300 bg-blue-50 shadow-sm"></button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <section class="lg:col-span-4 space-y-6">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <h2 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-indigo-500"></i> 添加新单品
+        </h2>
+        <form id="clothForm" onsubmit="saveClothItem(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">衣物名称</label>
+            <input type="text" id="clothName" required placeholder="例如: 黑色基础款 T 恤" class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">分类</label>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <label class="border rounded-lg p-2 flex items-center justify-center gap-1 cursor-pointer hover:bg-slate-50">
+                <input type="radio" name="clothCategory" value="tops" required /> 上装
+              </label>
+              <label class="border rounded-lg p-2 flex items-center justify-center gap-1 cursor-pointer hover:bg-slate-50">
+                <input type="radio" name="clothCategory" value="bottoms" /> 下装
+              </label>
+              <label class="border rounded-lg p-2 flex items-center justify-center gap-1 cursor-pointer hover:bg-slate-50">
+                <input type="radio" name="clothCategory" value="outers" /> 外套
+              </label>
+              <label class="border rounded-lg p-2 flex items-center justify-center gap-1 cursor-pointer hover:bg-slate-50">
+                <input type="radio" name="clothCategory" value="shoes" /> 鞋履
+              </label>
+              <label class="border rounded-lg p-2 flex items-center justify-center gap-1 cursor-pointer hover:bg-slate-50">
+                <input type="radio" name="clothCategory" value="accessories" /> 配饰
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">图片上传 & 简单抠图</label>
+            <input type="file" accept="image/*" onchange="handleAccurateCutoutUpload(event)" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+          </div>
+
+          <div id="uploadPreviewContainer" class="hidden text-center p-3 bg-slate-50 rounded-xl border">
+            <span class="text-xs text-slate-400 block mb-2">图片预览</span>
+            <img id="uploadPreviewImg" class="h-28 mx-auto object-contain rounded" alt="Preview" />
+          </div>
+
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-2.5 rounded-xl transition shadow-sm">
+            保存至我的衣柜
+          </button>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-4">
+        <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-shirt text-indigo-500"></i> 我的衣橱
+        </h2>
+        
+        <div class="space-y-3 max-h-[400px] overflow-y-auto pr-1 no-scrollbar">
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">上装</span>
+            <div id="grid-tops" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">下装</span>
+            <div id="grid-bottoms" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">外套</span>
+            <div id="grid-outers" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">鞋履</span>
+            <div id="grid-shoes" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
+          </div>
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">配饰</span>
+            <div id="grid-accessories" class="flex gap-2 overflow-x-auto py-2 no-scrollbar"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lg:col-span-8 flex flex-col gap-4">
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex justify-between items-center flex-wrap gap-2">
+        <h2 class="text-base font-semibold text-slate-800">搭配设计画布</h2>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition border border-slate-200/60" title="调整背景颜色">
+            <i class="fa-solid fa-palette text-indigo-600 text-xs"></i>
+            <span class="text-xs font-medium text-slate-600">背景色:</span>
+            <input type="color" id="canvasBarColorPicker" value="#ffffff" oninput="changeCanvasBg(this.value)" class="w-5 h-5 border-0 rounded cursor-pointer bg-transparent p-0" />
+          </div>
+          <button onclick="saveCurrentOutfit()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg transition font-medium">
+            保存搭配
+          </button>
+          <button onclick="openFullScreenPreview()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition font-medium">
+            全屏预览
+          </button>
+        </div>
+      </div>
+
+      <div id="canvasArea" class="bg-white rounded-2xl border border-slate-200/80 min-h-[550px] flex-1 overflow-hidden relative flex items-center justify-center">
+        <p id="canvasHint" class="text-sm text-slate-300 pointer-events-none select-none">
+          点击衣柜中的单品添加至此处
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div id="collectionContainer"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
